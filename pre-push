@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# copy this file to ./git/hooks/ in your repository!
+
+function show_force_alert() {
+	cat <<-EOS
+	--------------------------------------------------
+	
+	              ▄▄▄▄
+	             ██▀▀▀
+	           ███████
+	             ██
+	  █████      ██
+	             ██     
+	             ▀▀     
+	
+	breaks remote branch!
+	Do you really want force push? [y/N]
+	--------------------------------------------------
+	EOS
+	return 0
+}
+
+function show_delete_alert() {
+	cat <<-EOS
+	--------------------------------------------------
+	
+	                 ▄▄
+	                 ██
+	            ▄███▄██
+	           ██▀  ▀██
+	  █████    ██    ██
+	           ▀██▄▄███
+	             ▀▀▀ ▀▀
+	deletes remote branch!
+	Do you really want to delete remote branch? [y/N]
+	--------------------------------------------------
+	EOS
+	return 0
+}
+
+# prohibit pushing to these branches
+prohibited_branches="(master|develop|main)"
+# get whole push command string like "git push -f origin mybranch"
+push_command=$(ps -ocommand= -p $PPID)
+
+while read local_ref local_sha remote_ref remote_sha
+do
+	if [[ "$remote_ref" =~ ^.*/$prohibited_branches$ ]]; then
+		cat <<-EOS
+		--------------------------------------------------
+		
+		DO NOT PUSH TO $remote_ref DIRECTLY!
+		
+		--------------------------------------------------
+		EOS
+
+		exit 1
+	fi
+
+	if [[ "$push_command" =~ (force|\-f) ]]; then
+		alert_msg=$( show_force_alert )
+		# show yellow alert_msg
+		printf '\033[33m%s\033[m\n' "$alert_msg"
+
+		exec < /dev/tty
+		read yn
+		if [[ "$yn" =~ ^[yY]$ ]]; then
+			exit 0
+		fi
+
+		exit 1
+	fi
+
+	if [[ "$push_command" =~ (delete|\-d) ]]; then
+		alert_msg=$( show_delete_alert )
+		# show red alert_msg
+		printf '\033[31m%s\033[m\n' "$alert_msg"
+
+		exec < /dev/tty
+		read yn
+		if [[ "$yn" =~ ^[yY]$ ]]; then
+			exit 0
+		fi
+
+		exit 1
+	fi
+done
+
+exit 0
