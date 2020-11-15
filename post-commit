@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# copy this file to ./git/hooks/ in your repository!
+
+function show_reminder() {
+	cat <<-EOS
+	--------------------------------------------------
+	
+	[REMIND] Before pushing, run these commands!
+	$ echo "hello, world!"
+	$ make
+	$ go fmt ./...
+	
+	--------------------------------------------------
+	EOS
+	return 0
+}
+
+remind_msg=$( show_reminder )
+# show cyan msg
+printf '\033[1;36m%s\033[m\n' "$remind_msg"
+exit 0
