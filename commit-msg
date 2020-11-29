@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# copy this file to ./git/hooks/ in your repository!
+
+commit_msg=$( cat $1 )
+
+if [[ ! "$commit_msg" =~ ^.*:[[:space:]].*$ ]]; then
+	cat <<-EOS
+		--------------------------------------------------
+		
+		COMMIT MESSAGE MUST BE
+		"word: some explanations..."
+		
+		--------------------------------------------------
+		EOS
+	exit 1
+fi
