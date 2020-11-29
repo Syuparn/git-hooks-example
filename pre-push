@@ -58,7 +58,7 @@ do
 		exit 1
 	fi
 
-	if [[ "$push_command" =~ (force|\-f) ]]; then
+	if [[ "$push_command" =~ (force|[[:space:]]\-f[[:space:]]) ]]; then
 		alert_msg=$( show_force_alert )
 		# show yellow alert_msg
 		printf '\033[33m%s\033[m\n' "$alert_msg"
@@ -72,7 +72,7 @@ do
 		exit 1
 	fi
 
-	if [[ "$push_command" =~ (delete|\-d) ]]; then
+	if [[ "$push_command" =~ (delete|[[:space:]]\-d[[:space:]]) ]]; then
 		alert_msg=$( show_delete_alert )
 		# show red alert_msg
 		printf '\033[31m%s\033[m\n' "$alert_msg"
