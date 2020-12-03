@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# copy this file to ./git/hooks/ in your repository!
+
+function merged_branches() {
+	# merged branches except current one and important ones
+	git branch --merged | grep -vE '(^\*|main|master|develop)'
+}
+
+# if no branches are found, do nothing
+if [[ $( merged_branches | wc -l ) -eq 0 ]]; then
+	exit 0
+fi
+
+cat <<-EOS
+--------------------------------------------------
+
+[Cleaner] These branches have already been merged.
+EOS
+
+# merged branches except current one and important ones
+merged_branches
+
+cat <<-EOS
+
+Do you want to delete them? [Y/n]
+
+--------------------------------------------------
+EOS
+
+exec < /dev/tty
+read yn
+if [[ "$yn" =~ ^[nN]$ ]]; then
+	# cancel	
+	exit 0
+fi
+
+for branch in $( merged_branches )
+do
+	git branch -d $branch
+done
